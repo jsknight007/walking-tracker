@@ -3,79 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Our Walks</title>
+    <title>Our Walk Tracker</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
             --primary: #4CAF50;
-            --secondary: #2196F3;
+            --accent: #2196F3;
+            --danger: #f44336;
             --bg: #f0f2f5;
             --card-bg: #ffffff;
             --text: #333;
-            --success: #FFD700;
+            --gold: #FFD700;
         }
 
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 20px; 
-            background: var(--bg); 
-            color: var(--text);
-            margin: 0;
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 20px; background: var(--bg); color: var(--text); margin: 0;
         }
 
         .card { 
-            background: var(--card-bg); 
-            padding: 20px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-            width: 100%; 
-            max-width: 400px; 
-            box-sizing: border-box; 
+            background: var(--card-bg); padding: 20px; border-radius: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; 
+            max-width: 420px; box-sizing: border-box; 
         }
 
-        h2 { text-align: center; margin-top: 0; margin-bottom: 20px; font-weight: 800; }
+        h2 { text-align: center; margin-top: 0; margin-bottom: 20px; font-weight: 800; letter-spacing: -0.5px; }
 
         /* Dashboard Stats */
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .stat-box { background: #f8f9fa; padding: 12px; border-radius: 15px; text-align: center; }
-        .stat-label { font-size: 0.7rem; color: #666; font-weight: bold; text-transform: uppercase; }
-        .stat-value { font-size: 1.4rem; font-weight: 800; margin: 4px 0; }
+        .stat-box { background: #f8f9fa; padding: 12px; border-radius: 18px; text-align: center; border: 1px solid #eee; }
+        .stat-label { font-size: 0.65rem; color: #777; font-weight: bold; text-transform: uppercase; }
+        .stat-value { font-size: 1.5rem; font-weight: 800; margin: 4px 0; color: #1a1a1a; }
         
         /* Progress Bars */
-        .progress-container { background: #eee; border-radius: 10px; height: 8px; margin: 8px 0; overflow: hidden; }
-        .progress-bar { background: var(--primary); height: 100%; width: 0%; transition: width 0.8s ease-in-out; }
-        .goal-text { font-size: 0.65rem; color: #999; }
+        .progress-container { background: #e0e0e0; border-radius: 10px; height: 8px; margin: 8px 0; overflow: hidden; }
+        .progress-bar { background: var(--primary); height: 100%; width: 0%; transition: width 1s ease-in-out; }
+        .goal-text { font-size: 0.65rem; color: #999; font-weight: 500; }
 
-        /* Input Section */
-        .input-group { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+        /* Timer Section */
+        .timer-section { text-align: center; padding: 20px 0; border-top: 1px solid #eee; margin-top: 10px; }
+        #timerDisplay { font-size: 3.5rem; font-weight: 800; margin-bottom: 15px; font-variant-numeric: tabular-nums; }
+        
+        .timer-controls { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .btn { border: none; border-radius: 14px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; }
+        .btn:active { opacity: 0.7; }
+        
+        #timerBtn { padding: 18px; background: var(--accent); color: white; }
+        #resetBtn { padding: 18px; background: #eee; color: #666; }
+
+        /* Manual Input & Submit */
         input[type="number"] { 
             width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #eee; 
-            border-radius: 12px; font-size: 1.2rem; box-sizing: border-box; outline: none; 
+            border-radius: 12px; font-size: 1.1rem; box-sizing: border-box; text-align: center;
         }
-        .quick-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .quick-btn { padding: 12px; background: #e8f5e9; color: #2e7d32; border: none; border-radius: 10px; font-weight: 600; font-size: 0.9rem; }
-        
-        button#submit { 
-            width: 100%; padding: 16px; background: var(--primary); color: white; 
-            border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; 
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2); 
+        #submit { 
+            width: 100%; padding: 18px; background: var(--primary); color: white; 
+            border: none; border-radius: 14px; font-size: 1.1rem; font-weight: bold; 
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); 
         }
 
-        /* Recent Walks List */
-        .history-section { margin-top: 25px; width: 100%; }
-        .history-title { font-size: 0.9rem; font-weight: bold; color: #666; margin-bottom: 10px; padding-left: 5px; }
+        /* History */
+        .history-section { margin-top: 30px; width: 100%; }
+        .history-title { font-size: 0.85rem; font-weight: bold; color: #888; margin-bottom: 12px; text-transform: uppercase; padding-left: 5px; }
         .history-item { 
             display: flex; justify-content: space-between; background: #fff; 
-            padding: 12px 15px; border-radius: 12px; margin-bottom: 8px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03); font-size: 0.9rem; 
+            padding: 14px; border-radius: 14px; margin-bottom: 8px; 
+            border: 1px solid #f0f0f0; font-size: 0.95rem; 
         }
-        .hist-date { color: #888; }
-        .hist-mins { font-weight: bold; color: var(--primary); }
+        .hist-date { color: #666; font-weight: 500; }
+        .hist-mins { font-weight: 700; color: var(--primary); }
 
-        #status { text-align: center; font-size: 0.85rem; margin-top: 10px; min-height: 1.2rem; }
+        #status { text-align: center; font-size: 0.9rem; margin-top: 15px; font-weight: 500; min-height: 1.2rem; }
     </style>
 </head>
 <body>
@@ -98,85 +97,149 @@
         </div>
     </div>
 
-    <div class="input-group">
-        <input type="number" id="duration" inputmode="numeric" placeholder="Minutes walked">
-        <div class="quick-btns">
-            <button class="quick-btn" onclick="quickLog(20)">20 Min</button>
-            <button class="quick-btn" onclick="quickLog(30)">30 Min</button>
+    <div class="timer-section">
+        <div id="timerDisplay">00:00</div>
+        <div class="timer-controls">
+            <button id="timerBtn" class="btn" onclick="toggleTimer()">Start Walk</button>
+            <button id="resetBtn" class="btn" onclick="resetTimer()">Reset</button>
         </div>
-        <button id="submit" onclick="sendData()">Log Walk</button>
+
+        <input type="number" id="duration" inputmode="numeric" placeholder="Minutes walked">
+        <button id="submit" class="btn" onclick="sendData()">Log Activity</button>
         <p id="status"></p>
     </div>
 
     <div class="history-section">
-        <div class="history-title">Recent Activity</div>
+        <div class="history-title">Recent Walks</div>
         <div id="historyList">
             </div>
     </div>
 </div>
 
 <script>
-    // Replace with your Web App URL from Apps Script
-    const scriptURL = 'YOUR_APPS_SCRIPT_URL';
+    // 1. SETTINGS: Replace this with your Google Apps Script URL
+    const scriptURL = 'YOUR_APPS_SCRIPT_URL_HERE';
 
+    // 2. TIMER LOGIC
+    let timerInterval;
+    let seconds = 0;
+    let isRunning = false;
+
+    function toggleTimer() {
+        const btn = document.getElementById('timerBtn');
+        if (!isRunning) {
+            isRunning = true;
+            btn.innerText = "Pause Walk";
+            btn.style.background = "var(--danger)";
+            timerInterval = setInterval(() => {
+                seconds++;
+                updateTimerDisplay();
+                // Sync manual input box with rounded minutes as we go
+                if (seconds % 60 === 0) {
+                    document.getElementById('duration').value = seconds / 60;
+                }
+            }, 1000);
+        } else {
+            isRunning = false;
+            btn.innerText = "Resume Walk";
+            btn.style.background = "var(--accent)";
+            clearInterval(timerInterval);
+        }
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        isRunning = false;
+        seconds = 0;
+        updateTimerDisplay();
+        document.getElementById('duration').value = '';
+        document.getElementById('timerBtn').innerText = "Start Walk";
+        document.getElementById('timerBtn').style.background = "var(--accent)";
+    }
+
+    function updateTimerDisplay() {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        document.getElementById('timerDisplay').innerText = 
+            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // 3. DATA LOGGING
+    async function sendData() {
+        const dur = document.getElementById('duration').value;
+        const status = document.getElementById('status');
+        if (!dur || dur <= 0) {
+            status.innerText = "⚠️ Enter minutes first";
+            return;
+        }
+
+        status.style.color = "#666";
+        status.innerText = "Syncing with Sheet...";
+        
+        try {
+            await fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ 
+                    duration: dur, 
+                    date: new Date().toLocaleDateString() 
+                })
+            });
+            
+            status.style.color = "var(--primary)";
+            status.innerText = "✅ Walk Logged Successfully!";
+            resetTimer(); // Clears everything after success
+            setTimeout(loadStats, 1000); // Reload the dashboard
+            setTimeout(() => { status.innerText = ""; }, 3000);
+        } catch (e) {
+            status.style.color = "var(--danger)";
+            status.innerText = "❌ Sync Error. Check connection.";
+        }
+    }
+
+    // 4. LOAD DASHBOARD & HISTORY
     async function loadStats() {
         try {
             const response = await fetch(scriptURL);
             const data = await response.json();
             
-            // Stats & Goals
+            // Numbers
             document.getElementById('curWeek').innerText = data.currentWeek + "m";
             document.getElementById('curMonth').innerText = data.currentMonth + "m";
             document.getElementById('monthGoalText').innerText = `Goal: ${data.monthGoal}m`;
 
-            // Bars
+            // Progress Bars
             const wPct = Math.min((data.currentWeek / data.weekGoal) * 100, 100);
             const mPct = Math.min((data.currentMonth / data.monthGoal) * 100, 100);
-            document.getElementById('weekBar').style.width = wPct + "%";
-            document.getElementById('monthBar').style.width = mPct + "%";
             
-            if(wPct >= 100) document.getElementById('weekBar').style.background = "var(--success)";
-            if(mPct >= 100) document.getElementById('monthBar').style.background = "var(--success)";
+            const wBar = document.getElementById('weekBar');
+            const mBar = document.getElementById('monthBar');
+            
+            wBar.style.width = wPct + "%";
+            mBar.style.width = mPct + "%";
+            
+            // Goal Achievements
+            wBar.style.background = (wPct >= 100) ? "var(--gold)" : "var(--primary)";
+            mBar.style.background = (mPct >= 100) ? "var(--gold)" : "var(--primary)";
 
-            // Update History List
+            // Build History List
             const list = document.getElementById('historyList');
             list.innerHTML = "";
-            // Assuming the API returns a 'recent' array of [date, mins]
             if (data.recent && data.recent.length > 0) {
                 data.recent.forEach(walk => {
                     list.innerHTML += `
                         <div class="history-item">
                             <span class="hist-date">${walk.date}</span>
-                            <span class="hist-mins">${walk.mins} mins</span>
+                            <span class="hist-mins">${walk.mins}m</span>
                         </div>`;
                 });
             }
-        } catch (e) { console.log("Load error", e); }
+        } catch (e) {
+            console.error("Dashboard failed to load", e);
+        }
     }
 
-    function quickLog(mins) {
-        document.getElementById('duration').value = mins;
-        sendData();
-    }
-
-    async function sendData() {
-        const dur = document.getElementById('duration').value;
-        const status = document.getElementById('status');
-        if (!dur) return;
-
-        status.innerText = "Saving...";
-        try {
-            await fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ duration: dur, date: new Date().toLocaleDateString() })
-            });
-            status.innerText = "✅ Logged!";
-            document.getElementById('duration').value = '';
-            setTimeout(loadStats, 1000); // Refresh stats
-        } catch (e) { status.innerText = "❌ Error"; }
-    }
-
+    // Load stats on open
     window.onload = loadStats;
 </script>
 

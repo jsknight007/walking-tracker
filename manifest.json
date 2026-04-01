@@ -1,1 +1,16 @@
-
+{
+  "short_name": "WalkTracker",
+  "name": "Family Walk Tracker",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2870/2870628.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#2196F3",
+  "background_color": "#f4f4f9"
+}

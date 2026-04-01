@@ -1,16 +1,21 @@
 {
-  "short_name": "WalkTracker",
-  "name": "Family Walk Tracker",
+  "short_name": "OurWalks",
+  "name": "Our Walking Tracker",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2870/2870628.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/3843/3843031.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3843/3843031.png",
+      "sizes": "192x192",
+      "type": "image/png"
     }
   ],
-  "start_url": ".",
+  "start_url": "./index.html",
   "display": "standalone",
-  "theme_color": "#2196F3",
-  "background_color": "#f4f4f9"
+  "theme_color": "#4CAF50",
+  "background_color": "#f0f2f5"
 }

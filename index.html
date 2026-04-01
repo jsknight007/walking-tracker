@@ -28,31 +28,26 @@
             max-width: 420px; box-sizing: border-box; 
         }
 
-        h2 { text-align: center; margin-top: 0; margin-bottom: 20px; font-weight: 800; letter-spacing: -0.5px; }
+        h2 { text-align: center; margin-top: 0; margin-bottom: 20px; font-weight: 800; }
 
-        /* Dashboard Stats */
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         .stat-box { background: #f8f9fa; padding: 12px; border-radius: 18px; text-align: center; border: 1px solid #eee; }
         .stat-label { font-size: 0.65rem; color: #777; font-weight: bold; text-transform: uppercase; }
         .stat-value { font-size: 1.5rem; font-weight: 800; margin: 4px 0; color: #1a1a1a; }
         
-        /* Progress Bars */
         .progress-container { background: #e0e0e0; border-radius: 10px; height: 8px; margin: 8px 0; overflow: hidden; }
         .progress-bar { background: var(--primary); height: 100%; width: 0%; transition: width 1s ease-in-out; }
         .goal-text { font-size: 0.65rem; color: #999; font-weight: 500; }
 
-        /* Timer Section */
         .timer-section { text-align: center; padding: 20px 0; border-top: 1px solid #eee; margin-top: 10px; }
         #timerDisplay { font-size: 3.5rem; font-weight: 800; margin-bottom: 15px; font-variant-numeric: tabular-nums; }
         
         .timer-controls { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .btn { border: none; border-radius: 14px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; }
-        .btn:active { opacity: 0.7; }
+        .btn { border: none; border-radius: 14px; font-weight: bold; font-size: 1rem; cursor: pointer; }
         
         #timerBtn { padding: 18px; background: var(--accent); color: white; }
         #resetBtn { padding: 18px; background: #eee; color: #666; }
 
-        /* Manual Input & Submit */
         input[type="number"] { 
             width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #eee; 
             border-radius: 12px; font-size: 1.1rem; box-sizing: border-box; text-align: center;
@@ -60,10 +55,8 @@
         #submit { 
             width: 100%; padding: 18px; background: var(--primary); color: white; 
             border: none; border-radius: 14px; font-size: 1.1rem; font-weight: bold; 
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); 
         }
 
-        /* History */
         .history-section { margin-top: 30px; width: 100%; }
         .history-title { font-size: 0.85rem; font-weight: bold; color: #888; margin-bottom: 12px; text-transform: uppercase; padding-left: 5px; }
         .history-item { 
@@ -111,19 +104,15 @@
 
     <div class="history-section">
         <div class="history-title">Recent Walks</div>
-        <div id="historyList">
-            </div>
+        <div id="historyList"></div>
     </div>
 </div>
 
 <script>
-    // 1. SETTINGS: Replace this with your Google Apps Script URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwr4bHB1fXDKwCukjjIwnb2eGU_uAVwWbiKCkEQYGqlAc2V5K9FAYSHdAewF7NOJ4dm_A/exec';
+    const scriptURL = 'YOUR_APPS_SCRIPT_URL_HERE';
 
-    // 2. TIMER LOGIC
-    let timerInterval;
-    let seconds = 0;
-    let isRunning = false;
+    let timerInterval, seconds = 0, isRunning = false;
+    let globalMonthGoal = 0;
 
     function toggleTimer() {
         const btn = document.getElementById('timerBtn');
@@ -134,10 +123,7 @@
             timerInterval = setInterval(() => {
                 seconds++;
                 updateTimerDisplay();
-                // Sync manual input box with rounded minutes as we go
-                if (seconds % 60 === 0) {
-                    document.getElementById('duration').value = seconds / 60;
-                }
+                if (seconds % 60 === 0) document.getElementById('duration').value = seconds / 60;
             }, 1000);
         } else {
             isRunning = false;
@@ -160,88 +146,72 @@
     function updateTimerDisplay() {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        document.getElementById('timerDisplay').innerText = 
-            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        document.getElementById('timerDisplay').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // 3. DATA LOGGING
-    async function sendData() {
-        const dur = document.getElementById('duration').value;
-        const status = document.getElementById('status');
-        if (!dur || dur <= 0) {
-            status.innerText = "⚠️ Enter minutes first";
-            return;
-        }
-
-        status.style.color = "#666";
-        status.innerText = "Syncing with Sheet...";
+    // DASHBOARD UPDATE LOGIC
+    function updateBars(weekMins, monthMins) {
+        const wPct = Math.min((weekMins / 150) * 100, 100);
+        const mPct = globalMonthGoal > 0 ? Math.min((monthMins / globalMonthGoal) * 100, 100) : 0;
         
+        document.getElementById('curWeek').innerText = weekMins + "m";
+        document.getElementById('curMonth').innerText = monthMins + "m";
+        
+        const wBar = document.getElementById('weekBar');
+        const mBar = document.getElementById('monthBar');
+        
+        wBar.style.width = wPct + "%";
+        mBar.style.width = mPct + "%";
+        
+        wBar.style.background = (wPct >= 100) ? "var(--gold)" : "var(--primary)";
+        mBar.style.background = (mPct >= 100) ? "var(--gold)" : "var(--primary)";
+    }
+
+    async function sendData() {
+        const dur = parseInt(document.getElementById('duration').value);
+        const status = document.getElementById('status');
+        if (!dur || dur <= 0) return;
+
+        // Optimistic UI Update
+        const oldWeek = parseInt(document.getElementById('curWeek').innerText);
+        const oldMonth = parseInt(document.getElementById('curMonth').innerText);
+        updateBars(oldWeek + dur, oldMonth + dur);
+
+        status.innerText = "Syncing...";
         try {
             await fetch(scriptURL, {
                 method: 'POST',
                 mode: 'no-cors',
-                body: JSON.stringify({ 
-                    duration: dur, 
-                    date: new Date().toLocaleDateString() 
-                })
+                body: JSON.stringify({ duration: dur, date: new Date().toLocaleDateString() })
             });
-            
-            status.style.color = "var(--primary)";
-            status.innerText = "✅ Walk Logged Successfully!";
-            resetTimer(); // Clears everything after success
-            setTimeout(loadStats, 1000); // Reload the dashboard
-            setTimeout(() => { status.innerText = ""; }, 3000);
+            status.innerText = "✅ Logged!";
+            resetTimer();
+            setTimeout(loadStats, 2500); 
         } catch (e) {
-            status.style.color = "var(--danger)";
-            status.innerText = "❌ Sync Error. Check connection.";
+            status.innerText = "❌ Sync Error";
         }
     }
 
-    // 4. LOAD DASHBOARD & HISTORY
     async function loadStats() {
         try {
             const response = await fetch(scriptURL);
             const data = await response.json();
             
-            // Numbers
-            document.getElementById('curWeek').innerText = data.currentWeek + "m";
-            document.getElementById('curMonth').innerText = data.currentMonth + "m";
+            globalMonthGoal = data.monthGoal;
             document.getElementById('monthGoalText').innerText = `Goal: ${data.monthGoal}m`;
+            updateBars(data.currentWeek, data.currentMonth);
 
-            // Progress Bars
-            const wPct = Math.min((data.currentWeek / data.weekGoal) * 100, 100);
-            const mPct = Math.min((data.currentMonth / data.monthGoal) * 100, 100);
-            
-            const wBar = document.getElementById('weekBar');
-            const mBar = document.getElementById('monthBar');
-            
-            wBar.style.width = wPct + "%";
-            mBar.style.width = mPct + "%";
-            
-            // Goal Achievements
-            wBar.style.background = (wPct >= 100) ? "var(--gold)" : "var(--primary)";
-            mBar.style.background = (mPct >= 100) ? "var(--gold)" : "var(--primary)";
-
-            // Build History List
             const list = document.getElementById('historyList');
             list.innerHTML = "";
             if (data.recent && data.recent.length > 0) {
                 data.recent.forEach(walk => {
-                    list.innerHTML += `
-                        <div class="history-item">
-                            <span class="hist-date">${walk.date}</span>
-                            <span class="hist-mins">${walk.mins}m</span>
-                        </div>`;
+                    list.innerHTML += `<div class="history-item"><span class="hist-date">${walk.date}</span><span class="hist-mins">${walk.mins}m</span></div>`;
                 });
             }
-        } catch (e) {
-            console.error("Dashboard failed to load", e);
-        }
+        } catch (e) { console.error("Load failed", e); }
     }
 
-    // Load stats on open
     window.onload = loadStats;
 </script>
-
 </body>
 </html>

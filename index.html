@@ -1,1 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Walk Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0f2f5; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; box-sizing: border-box; }
+        h2 { text-align: center; color: #1a1a1a; margin-bottom: 25px; }
+        label { font-weight: bold; color: #555; display: block; margin-bottom: 8px; }
+        
+        input[type="number"] { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #eee; border-radius: 12px; font-size: 1.2rem; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
+        input[type="number"]:focus { border-color: #4CAF50; }
 
+        .quick-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .quick-btn { padding: 12px; background: #e8f5e9; color: #2e7d32; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+
+        button#submit { width: 100%; padding: 18px; background: #4CAF50; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2); }
+        #status { text-align: center; margin-top: 20px; font-weight: 500; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Our Walks</h2>
+    
+    <label>Minutes Walked Together:</label>
+    <input type="number" id="duration" inputmode="numeric" placeholder="Enter minutes">
+
+    <div class="quick-buttons">
+        <button class="quick-btn" onclick="quickLog(20)">20 Min</button>
+        <button class="quick-btn" onclick="quickLog(30)">30 Min</button>
+    </div>
+
+    <button id="submit" onclick="sendData()">Log Walk</button>
+    <p id="status"></p>
+</div>
+
+<script>
+    const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+    function quickLog(mins) {
+        document.getElementById('duration').value = mins;
+        sendData();
+    }
+
+    async function sendData() {
+        const duration = document.getElementById('duration').value;
+        const status = document.getElementById('status');
+        
+        if (!duration) {
+            status.innerText = "Enter a time first!";
+            return;
+        }
+
+        status.innerText = "Saving to Sheet...";
+        
+        const payload = {
+            user: "Couple",
+            duration: duration,
+            date: new Date().toLocaleDateString()
+        };
+
+        try {
+            await fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload)
+            });
+            status.innerHTML = "✅ Walk logged!";
+            document.getElementById('duration').value = '';
+            setTimeout(() => { status.innerText = ""; }, 3000);
+        } catch (error) {
+            status.innerText = "❌ Connection error.";
+            console.error(error);
+        }
+    }
+</script>
+
+</body>
+</html>

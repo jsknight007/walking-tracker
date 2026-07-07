@@ -16,16 +16,17 @@
             --gold: #FFD700;
         }
 
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 20px; background: var(--bg); color: var(--text); margin: 0;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; background: linear-gradient(135deg, #f0f2f5 0%, #e2e8f0 100%);
+            color: var(--text); margin: 0; min-height: 100vh;
         }
 
-        .card { 
-            background: var(--card-bg); padding: 20px; border-radius: 25px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; 
-            max-width: 420px; box-sizing: border-box; 
+        .card {
+            background: var(--card-bg); padding: 20px; border-radius: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+            width: 100%; max-width: 420px; box-sizing: border-box;
         }
 
         h2 { text-align: center; margin-top: 0; margin-bottom: 20px; font-weight: 800; }
@@ -34,47 +35,105 @@
         .stat-box { background: #f8f9fa; padding: 12px; border-radius: 18px; text-align: center; border: 1px solid #eee; }
         .stat-label { font-size: 0.65rem; color: #777; font-weight: bold; text-transform: uppercase; }
         .stat-value { font-size: 1.5rem; font-weight: 800; margin: 4px 0; color: #1a1a1a; }
-        
-        .progress-container { background: #e0e0e0; border-radius: 10px; height: 8px; margin: 8px 0; overflow: hidden; }
-        .progress-bar { background: var(--primary); height: 100%; width: 0%; transition: width 1s ease-in-out; }
+
+        .progress-container { background: #e0e0e0; border-radius: 7px; height: 14px; margin: 8px 0; overflow: hidden; position: relative; }
+        .progress-bar {
+            background: var(--primary); height: 100%; width: 0%; border-radius: 7px;
+            transition: width 1s ease-in-out; position: relative; overflow: hidden;
+        }
+        .progress-bar::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer { 100% { left: 100%; } }
         .goal-text { font-size: 0.65rem; color: #999; font-weight: 500; }
 
         .timer-section { text-align: center; padding: 20px 0; border-top: 1px solid #eee; margin-top: 10px; }
-        #timerDisplay { font-size: 3.5rem; font-weight: 800; margin-bottom: 15px; font-variant-numeric: tabular-nums; }
-        
+        .timer-ring {
+            display: inline-block; padding: 20px; border-radius: 50%;
+            border: 3px solid transparent; transition: border-color 0.3s ease;
+            margin-bottom: 15px;
+        }
+        .timer-ring.active {
+            border-color: var(--accent);
+            animation: ring-pulse 2s ease-in-out infinite;
+        }
+        @keyframes ring-pulse {
+            0%, 100% { border-color: rgba(33,150,243,0.3); }
+            50% { border-color: rgba(33,150,243,0.8); }
+        }
+        #timerDisplay { font-size: 3.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .timer-colon { display: inline; }
+        .timer-ring.active .timer-colon { animation: colon-pulse 1s steps(1) infinite; }
+        @keyframes colon-pulse {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.3; }
+        }
+
         .timer-controls { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .btn { border: none; border-radius: 14px; font-weight: bold; font-size: 1rem; cursor: pointer; }
-        
+        .btn {
+            border: none; border-radius: 14px; font-weight: bold; font-size: 1rem; cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn:active { transform: scale(0.95); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
         #timerBtn { padding: 18px; background: var(--accent); color: white; }
         #resetBtn { padding: 18px; background: #eee; color: #666; }
 
-        input[type="number"] { 
-            width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #eee; 
+        input[type="number"] {
+            width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #eee;
             border-radius: 12px; font-size: 1.1rem; box-sizing: border-box; text-align: center;
         }
-        #submit { 
-            width: 100%; padding: 18px; background: var(--primary); color: white; 
-            border: none; border-radius: 14px; font-size: 1.1rem; font-weight: bold; 
+        #submit {
+            width: 100%; padding: 18px; background: var(--primary); color: white;
+            border: none; border-radius: 14px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
+        #submit:active { transform: scale(0.95); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+        .streak-section { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; padding: 12px 0; }
+        .streak-day { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .streak-dot {
+            width: 14px; height: 14px; border-radius: 50%; border: 2px solid #e0e0e0; background: white;
+            transition: all 0.3s ease;
+        }
+        .streak-dot.filled { background: var(--primary); border-color: var(--primary); }
+        .streak-label { font-size: 0.55rem; color: #999; font-weight: 600; text-transform: uppercase; }
 
         .history-section { margin-top: 30px; width: 100%; }
         .history-title { font-size: 0.85rem; font-weight: bold; color: #888; margin-bottom: 12px; text-transform: uppercase; padding-left: 5px; }
-        .history-item { 
-            display: flex; justify-content: space-between; background: #fff; 
-            padding: 14px; border-radius: 14px; margin-bottom: 8px; 
-            border: 1px solid #f0f0f0; font-size: 0.95rem; 
+        .history-item {
+            display: flex; justify-content: space-between; background: #fff;
+            padding: 14px; border-radius: 14px; margin-bottom: 8px;
+            border: 1px solid #f0f0f0; font-size: 0.95rem;
         }
         .hist-date { color: #666; font-weight: 500; }
         .hist-mins { font-weight: 700; color: var(--primary); }
 
-        #status { text-align: center; font-size: 0.9rem; margin-top: 15px; font-weight: 500; min-height: 1.2rem; }
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            padding: 12px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease; white-space: nowrap;
+        }
+        .toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.success { background: #e6f4ea; color: #137333; }
+        .toast.error { background: #fce8e6; color: #c5221f; }
+        .toast.info { background: #e8f0fe; color: #1967d2; }
     </style>
 </head>
 <body>
 
 <div class="card">
+    <div style="text-align:right;"><button onclick="document.getElementById('cfgPanel').toggleAttribute('hidden')" style="background:#f8f9fa; border:1px solid #eee; border-radius:8px; padding:4px 10px; font-size:0.65rem; color:#777; cursor:pointer; font-weight:600;">SETTINGS</button></div>
+    <div id="cfgPanel" hidden style="margin-bottom:15px; padding:12px; background:#fffde7; border:1px solid #fbc02d; border-radius:12px;">
+        <label style="font-size:0.7rem; font-weight:bold; color:#555;">Apps Script URL</label>
+        <input type="text" id="urlCfg" placeholder="Web App URL" style="margin-bottom:8px; width:100%; padding:10px; border:2px solid #eee; border-radius:8px; font-size:0.9rem; box-sizing:border-box;">
+        <button onclick="localStorage.setItem('script_url', document.getElementById('urlCfg').value.trim()); showToast('Saved!','success'); document.getElementById('cfgPanel').setAttribute('hidden','');" style="width:100%; padding:10px; background:#fbc02d; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Save URL</button>
+    </div>
     <h2>Our Walks</h2>
-    
+
     <div class="dashboard">
         <div class="stat-box">
             <div class="stat-label">Weekly</div>
@@ -90,16 +149,20 @@
         </div>
     </div>
 
+    <div id="streakSection" class="streak-section"></div>
+
     <div class="timer-section">
-        <div id="timerDisplay">00:00</div>
+        <div id="timerRing" class="timer-ring">
+            <div id="timerDisplay"><span class="timer-mins">00</span><span class="timer-colon">:</span><span class="timer-secs">00</span></div>
+        </div>
         <div class="timer-controls">
             <button id="timerBtn" class="btn" onclick="toggleTimer()">Start Walk</button>
             <button id="resetBtn" class="btn" onclick="resetTimer()">Reset</button>
         </div>
 
-        <input type="number" id="duration" inputmode="numeric" placeholder="Minutes walked">
+        <input type="number" id="duration" inputmode="numeric" min="1" max="600" placeholder="Minutes walked">
         <button id="submit" class="btn" onclick="sendData()">Log Activity</button>
-        <p id="status"></p>
+        <button class="btn" style="width:100%; padding:12px; background:#fff5f5; color:#f44336; border:1px solid #ffdada; margin-top:10px; font-size:0.85rem;" onclick="undoLast()">Undo Last Entry</button>
     </div>
 
     <div class="history-section">
@@ -108,30 +171,87 @@
     </div>
 </div>
 
+<div id="toast" class="toast"></div>
+
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwr4bHB1fXDKwCukjjIwnb2eGU_uAVwWbiKCkEQYGqlAc2V5K9FAYSHdAewF7NOJ4dm_A/exec';
+    function getScriptUrl() { return localStorage.getItem('script_url') || ''; }
+    const TIMER_KEY = 'walkTimerState';
+
+    async function fetchWithRetry(url, opts = {}) {
+        try { return await fetch(url, opts); }
+        catch (e) { await new Promise(r => setTimeout(r, 2000)); return await fetch(url, opts); }
+    }
+
+    function showToast(msg, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast ' + type;
+        requestAnimationFrame(() => { toast.classList.add('visible'); });
+        setTimeout(() => { toast.classList.remove('visible'); }, 3500);
+    }
 
     let timerInterval, seconds = 0, isRunning = false;
     let globalMonthGoal = 0;
 
+    function saveTimerState() {
+        localStorage.setItem(TIMER_KEY, JSON.stringify({
+            seconds: seconds,
+            isRunning: isRunning,
+            savedAt: Date.now()
+        }));
+    }
+
+    function restoreTimerState() {
+        const saved = localStorage.getItem(TIMER_KEY);
+        if (!saved) return;
+        try {
+            const state = JSON.parse(saved);
+            if (state.isRunning) {
+                const elapsed = Math.floor((Date.now() - state.savedAt) / 1000);
+                seconds = state.seconds + elapsed;
+                updateTimerDisplay();
+                isRunning = true;
+                document.getElementById('timerBtn').textContent = "Pause Walk";
+                document.getElementById('timerBtn').style.background = "var(--danger)";
+                document.getElementById('timerRing').classList.add('active');
+                timerInterval = setInterval(function() {
+                    seconds++;
+                    updateTimerDisplay();
+                    if (seconds % 60 === 0) document.getElementById('duration').value = Math.floor(seconds / 60);
+                }, 1000);
+            } else if (state.seconds > 0) {
+                seconds = state.seconds;
+                updateTimerDisplay();
+                document.getElementById('duration').value = Math.floor(seconds / 60);
+            }
+        } catch (e) { localStorage.removeItem(TIMER_KEY); }
+    }
+
     function toggleTimer() {
         const btn = document.getElementById('timerBtn');
+        const ring = document.getElementById('timerRing');
         if (!isRunning) {
             isRunning = true;
-            btn.innerText = "Pause Walk";
+            btn.textContent = "Pause Walk";
             btn.style.background = "var(--danger)";
-            timerInterval = setInterval(() => {
+            ring.classList.add('active');
+            timerInterval = setInterval(function() {
                 seconds++;
                 updateTimerDisplay();
-                if (seconds % 60 === 0) document.getElementById('duration').value = seconds / 60;
+                if (seconds % 60 === 0) document.getElementById('duration').value = Math.floor(seconds / 60);
             }, 1000);
         } else {
             isRunning = false;
-            btn.innerText = "Resume Walk";
+            btn.textContent = "Resume Walk";
             btn.style.background = "var(--accent)";
+            ring.classList.remove('active');
             clearInterval(timerInterval);
         }
+        saveTimerState();
     }
+
+    document.addEventListener('visibilitychange', saveTimerState);
+    window.addEventListener('beforeunload', saveTimerState);
 
     function resetTimer() {
         clearInterval(timerInterval);
@@ -139,79 +259,155 @@
         seconds = 0;
         updateTimerDisplay();
         document.getElementById('duration').value = '';
-        document.getElementById('timerBtn').innerText = "Start Walk";
+        document.getElementById('timerBtn').textContent = "Start Walk";
         document.getElementById('timerBtn').style.background = "var(--accent)";
+        document.getElementById('timerRing').classList.remove('active');
+        localStorage.removeItem(TIMER_KEY);
     }
 
     function updateTimerDisplay() {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        document.getElementById('timerDisplay').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        document.querySelector('.timer-mins').textContent = mins.toString().padStart(2, '0');
+        document.querySelector('.timer-secs').textContent = secs.toString().padStart(2, '0');
     }
 
-    // DASHBOARD UPDATE LOGIC
     function updateBars(weekMins, monthMins) {
         const wPct = Math.min((weekMins / 150) * 100, 100);
         const mPct = globalMonthGoal > 0 ? Math.min((monthMins / globalMonthGoal) * 100, 100) : 0;
-        
-        document.getElementById('curWeek').innerText = weekMins + "m";
-        document.getElementById('curMonth').innerText = monthMins + "m";
-        
+
+        document.getElementById('curWeek').textContent = weekMins + "m";
+        document.getElementById('curMonth').textContent = monthMins + "m";
+
         const wBar = document.getElementById('weekBar');
         const mBar = document.getElementById('monthBar');
-        
+
         wBar.style.width = wPct + "%";
         mBar.style.width = mPct + "%";
-        
+
         wBar.style.background = (wPct >= 100) ? "var(--gold)" : "var(--primary)";
         mBar.style.background = (mPct >= 100) ? "var(--gold)" : "var(--primary)";
     }
 
+    function renderStreak(recentWalks) {
+        const section = document.getElementById('streakSection');
+        section.innerHTML = '';
+        const days = ['S','M','T','W','T','F','S'];
+        const now = new Date();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0,0,0,0);
+
+        const walkDates = new Set();
+        if (recentWalks) {
+            recentWalks.forEach(function(w) {
+                walkDates.add(w.date);
+            });
+        }
+
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(startOfWeek);
+            d.setDate(startOfWeek.getDate() + i);
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const label = months[d.getMonth()] + ' ' + d.getDate();
+
+            const hasWalk = walkDates.has(label);
+            const dayEl = document.createElement('div');
+            dayEl.className = 'streak-day';
+            const dot = document.createElement('div');
+            dot.className = 'streak-dot' + (hasWalk ? ' filled' : '');
+            const lbl = document.createElement('span');
+            lbl.className = 'streak-label';
+            lbl.textContent = days[i];
+            dayEl.appendChild(dot);
+            dayEl.appendChild(lbl);
+            section.appendChild(dayEl);
+        }
+    }
+
     async function sendData() {
         const dur = parseInt(document.getElementById('duration').value);
-        const status = document.getElementById('status');
-        if (!dur || dur <= 0) return;
+        if (!dur || dur <= 0) { showToast("Enter a valid number of minutes", "error"); return; }
+        if (dur > 600) { showToast("Max 600 minutes", "error"); return; }
 
-        // Optimistic UI Update
-        const oldWeek = parseInt(document.getElementById('curWeek').innerText);
-        const oldMonth = parseInt(document.getElementById('curMonth').innerText);
+        const oldWeek = parseInt(document.getElementById('curWeek').textContent);
+        const oldMonth = parseInt(document.getElementById('curMonth').textContent);
         updateBars(oldWeek + dur, oldMonth + dur);
 
-        status.innerText = "Syncing...";
+        showToast("Syncing...", "info");
         try {
-            await fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ duration: dur, date: new Date().toLocaleDateString() })
-            });
-            status.innerText = "✅ Logged!";
-            resetTimer();
-            setTimeout(loadStats, 2500); 
+            const params = new URLSearchParams({ action: "log", duration: dur, date: new Date().toISOString().split('T')[0] });
+            const response = await fetchWithRetry(getScriptUrl() + "?" + params);
+            const data = await response.json();
+            if (data.error) {
+                showToast("Error: " + data.error, "error");
+                updateBars(oldWeek, oldMonth);
+            } else {
+                showToast("Logged " + data.logged + " minutes!", "success");
+                resetTimer();
+                setTimeout(loadStats, 2000);
+            }
         } catch (e) {
-            status.innerText = "❌ Sync Error";
+            showToast("Sync error - will retry", "error");
+            updateBars(oldWeek, oldMonth);
         }
     }
 
     async function loadStats() {
         try {
-            const response = await fetch(scriptURL);
+            const response = await fetchWithRetry(getScriptUrl());
             const data = await response.json();
-            
+            if (data.error) {
+                showToast("Load error: " + data.error, "error");
+                return;
+            }
+
             globalMonthGoal = data.monthGoal;
-            document.getElementById('monthGoalText').innerText = `Goal: ${data.monthGoal}m`;
+            document.getElementById('monthGoalText').textContent = "Goal: " + data.monthGoal + "m";
             updateBars(data.currentWeek, data.currentMonth);
+            renderStreak(data.recent);
 
             const list = document.getElementById('historyList');
-            list.innerHTML = "";
+            list.textContent = "";
             if (data.recent && data.recent.length > 0) {
-                data.recent.forEach(walk => {
-                    list.innerHTML += `<div class="history-item"><span class="hist-date">${walk.date}</span><span class="hist-mins">${walk.mins}m</span></div>`;
+                data.recent.forEach(function(walk) {
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    const dateSpan = document.createElement('span');
+                    dateSpan.className = 'hist-date';
+                    dateSpan.textContent = walk.date;
+                    const minsSpan = document.createElement('span');
+                    minsSpan.className = 'hist-mins';
+                    minsSpan.textContent = walk.mins + "m";
+                    div.appendChild(dateSpan);
+                    div.appendChild(minsSpan);
+                    list.appendChild(div);
                 });
             }
-        } catch (e) { console.error("Load failed", e); }
+        } catch (e) {
+            showToast("Connection error", "error");
+        }
     }
 
-    window.onload = loadStats;
+    async function undoLast() {
+        if (!confirm("Delete the most recent walk entry?")) return;
+        showToast("Deleting...", "info");
+        try {
+            const response = await fetchWithRetry(getScriptUrl() + "?action=deleteLast");
+            const data = await response.json();
+            if (data.error) { showToast("Error: " + data.error, "error"); }
+            else { showToast("Entry deleted", "success"); loadStats(); }
+        } catch (e) { showToast("Connection error", "error"); }
+    }
+
+    window.onload = function() {
+        const urlCfg = document.getElementById('urlCfg');
+        urlCfg.value = getScriptUrl();
+        if (!getScriptUrl()) document.getElementById('cfgPanel').removeAttribute('hidden');
+        restoreTimerState();
+        loadStats();
+    };
 </script>
+<div style="text-align:center; margin-top:1rem; font-size:0.65rem; color:#bdc3c7; font-weight:600;">V2.1.0</div>
 </body>
 </html>

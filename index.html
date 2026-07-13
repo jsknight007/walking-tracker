@@ -214,6 +214,7 @@
                 document.getElementById('timerBtn').textContent = "Pause Walk";
                 document.getElementById('timerBtn').style.background = "var(--danger)";
                 document.getElementById('timerRing').classList.add('active');
+                requestWakeLock();
                 timerInterval = setInterval(function() {
                     seconds++;
                     updateTimerDisplay();
@@ -235,6 +236,7 @@
             btn.textContent = "Pause Walk";
             btn.style.background = "var(--danger)";
             ring.classList.add('active');
+            requestWakeLock();
             timerInterval = setInterval(function() {
                 seconds++;
                 updateTimerDisplay();
@@ -245,13 +247,46 @@
             btn.textContent = "Resume Walk";
             btn.style.background = "var(--accent)";
             ring.classList.remove('active');
+            releaseWakeLock();
             clearInterval(timerInterval);
         }
         saveTimerState();
     }
 
-    document.addEventListener('visibilitychange', saveTimerState);
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            saveTimerState();
+        } else {
+            recalculateTimer();
+            if (isRunning) requestWakeLock();
+        }
+    });
     window.addEventListener('beforeunload', saveTimerState);
+
+    function recalculateTimer() {
+        if (!isRunning) return;
+        const saved = localStorage.getItem(TIMER_KEY);
+        if (!saved) return;
+        try {
+            const state = JSON.parse(saved);
+            if (state.isRunning && state.savedAt) {
+                const elapsed = Math.floor((Date.now() - state.savedAt) / 1000);
+                seconds = state.seconds + elapsed;
+                updateTimerDisplay();
+                if (seconds >= 60) document.getElementById('duration').value = Math.floor(seconds / 60);
+            }
+        } catch (e) {}
+    }
+
+    let wakeLock = null;
+    async function requestWakeLock() {
+        if (!('wakeLock' in navigator)) return;
+        try { wakeLock = await navigator.wakeLock.request('screen'); }
+        catch (e) {}
+    }
+    function releaseWakeLock() {
+        if (wakeLock) { wakeLock.release(); wakeLock = null; }
+    }
 
     function resetTimer() {
         clearInterval(timerInterval);
@@ -262,6 +297,7 @@
         document.getElementById('timerBtn').textContent = "Start Walk";
         document.getElementById('timerBtn').style.background = "var(--accent)";
         document.getElementById('timerRing').classList.remove('active');
+        releaseWakeLock();
         localStorage.removeItem(TIMER_KEY);
     }
 
@@ -408,6 +444,6 @@
         loadStats();
     };
 </script>
-<div style="text-align:center; margin-top:1rem; font-size:0.65rem; color:#bdc3c7; font-weight:600;">V2.1.0</div>
+<div style="text-align:center; margin-top:1rem; font-size:0.65rem; color:#bdc3c7; font-weight:600;">V2.2.0</div>
 </body>
 </html>

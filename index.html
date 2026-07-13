@@ -379,7 +379,7 @@
                 showToast("Error: " + data.error, "error");
                 updateBars(oldWeek, oldMonth);
             } else {
-                showToast("Logged " + data.logged + " minutes!", "success");
+                showToast("Logged " + dur + " minutes!", "success");
                 resetTimer();
                 setTimeout(loadStats, 2000);
             }

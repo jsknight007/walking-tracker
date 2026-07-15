@@ -185,24 +185,24 @@
 <div id="toast" class="toast"></div>
 
 <script>
-    function getScriptUrl() { return localStorage.getItem('script_url') || ''; }
+    function getScriptUrl() { return localStorage.getItem('wt_script_url') || ''; }
     const TIMER_KEY = 'walkTimerState';
 
     // --- Theme ---
     function applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️' : '🌙';
-        localStorage.setItem('theme', theme);
+        localStorage.setItem('wt_theme', theme);
     }
     window.toggleTheme = () => {
-        const current = localStorage.getItem('theme') || 'light';
+        const current = localStorage.getItem('wt_theme') || 'light';
         applyTheme(current === 'dark' ? 'light' : 'dark');
     };
-    applyTheme(localStorage.getItem('theme') || 'light');
+    applyTheme(localStorage.getItem('wt_theme') || 'light');
 
     // --- Offline Queue ---
-    function getQueue() { try { return JSON.parse(localStorage.getItem('offline_queue') || '[]'); } catch { return []; } }
-    function saveQueue(q) { localStorage.setItem('offline_queue', JSON.stringify(q)); updateQueueUI(); }
+    function getQueue() { try { return JSON.parse(localStorage.getItem('wt_offline_queue') || '[]'); } catch { return []; } }
+    function saveQueue(q) { localStorage.setItem('wt_offline_queue', JSON.stringify(q)); updateQueueUI(); }
     function pushToQueue(action, params) {
         const q = getQueue();
         q.push({ action, params, ts: Date.now() });
@@ -245,12 +245,12 @@
 
     // --- Settings ---
     window.saveSettings = () => {
-        localStorage.setItem('script_url', document.getElementById('urlCfg').value.trim());
+        localStorage.setItem('wt_script_url', document.getElementById('urlCfg').value.trim());
         const goalVal = document.getElementById('goalCfg').value.trim();
         if (goalVal && parseInt(goalVal) > 0) {
-            localStorage.setItem('custom_month_goal', goalVal);
+            localStorage.setItem('wt_custom_month_goal', goalVal);
         } else {
-            localStorage.removeItem('custom_month_goal');
+            localStorage.removeItem('wt_custom_month_goal');
         }
         showToast('Saved!', 'success');
         document.getElementById('cfgPanel').setAttribute('hidden', '');
@@ -495,7 +495,7 @@
             const data = await response.json();
             if (data.error) { showToast("Load error: " + data.error, "error"); return; }
 
-            const customGoal = parseInt(localStorage.getItem('custom_month_goal'));
+            const customGoal = parseInt(localStorage.getItem('wt_custom_month_goal'));
             const effectiveGoal = (customGoal && customGoal > 0) ? customGoal : data.monthGoal;
             globalMonthGoal = effectiveGoal;
             document.getElementById('monthGoalText').textContent = "Goal: " + effectiveGoal + "m";
@@ -536,7 +536,7 @@
 
     window.onload = function() {
         document.getElementById('urlCfg').value = getScriptUrl();
-        document.getElementById('goalCfg').value = localStorage.getItem('custom_month_goal') || '';
+        document.getElementById('goalCfg').value = localStorage.getItem('wt_custom_month_goal') || '';
         if (!getScriptUrl()) document.getElementById('cfgPanel').removeAttribute('hidden');
         restoreTimerState();
         updateQueueUI();

@@ -544,6 +544,19 @@
         flushQueue();
     };
 </script>
-<div style="text-align:center; margin-top:1rem; font-size:0.65rem; color:var(--muted); font-weight:600;">V3.0.0</div>
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+    navigator.serviceWorker.ready.then(function(reg) {
+        reg.active.postMessage('getVersion');
+    });
+    navigator.serviceWorker.addEventListener('message', function(event) {
+        if (event.data.type === 'version') {
+            document.getElementById('app-version').textContent = 'V' + event.data.version;
+        }
+    });
+}
+</script>
+<div id="app-version" style="text-align:center; margin-top:1rem; font-size:0.65rem; color:var(--muted); font-weight:600;">V3.1.0</div>
 </body>
 </html>
